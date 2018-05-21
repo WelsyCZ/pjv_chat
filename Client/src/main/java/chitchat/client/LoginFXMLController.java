@@ -10,26 +10,38 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 
 public class LoginFXMLController implements Initializable 
 {
     @FXML private Text actiontarget;
+    @FXML private GridPane loginGrid;
     @FXML private TextField username;
+    final int WIDTH = 250;
+    final int HEIGHT = 180;
+    private MainLauncher app;
+    
+    void setApp(MainLauncher ml){
+        this.app = ml;
+    }
     
     @FXML protected void connectButtonAction(ActionEvent e) throws IOException{
        actiontarget.setText("Connecting...");
-       
-       Parent mainChatWindow = FXMLLoader.load(getClass().getResource("/fxml/ChatView.fxml"));
+       app.userLogging(username.getText());
+       //Parent mainChatWindow = FXMLLoader.load(getClass().getResource("/fxml/ChatView.fxml"));
        
        
     }
     
-    
-    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        System.out.println("Done");
+        username.setPromptText("Username");
     }    
+    
+   
+    
+    
+    
 }

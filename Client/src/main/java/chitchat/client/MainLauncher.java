@@ -1,24 +1,35 @@
 package chitchat.client;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.fxml.JavaFXBuilderFactory;
+import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
 
 public class MainLauncher extends Application {
-
+    private Group root = new Group();
+    private Stage mainStage;
+    private Logger logger =  Logger.getLogger(getClass().getName());
+    
     @Override
     public void start(Stage stage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("/fxml/LoginView.fxml"));
         
-        Scene scene = new Scene(root);
         
-        stage.setTitle("ChitChat Client");
-        stage.setScene(scene);
-        stage.show();
+        mainStage = stage;
+        mainStage.setTitle("ChitChat Client");
+        mainStage.setScene(new Scene(makeContent()));
+        mainStage.show();
+        
     }
 
     /**
@@ -32,5 +43,66 @@ public class MainLauncher extends Application {
     public static void main(String[] args) {
         launch(args);
     }
-
+    
+    
+    private Parent makeContent(){
+        goToLogin();
+        return this.root;
+    }
+    
+    void userLogging(String s) {
+        System.out.println("usr loggin " +s);
+        goToChat();
+    }
+    
+    private void goToLogin(){
+        try {
+            mainStage.hide();
+            LoginFXMLController login = (LoginFXMLController) replaceSceneContent("/fxml/LoginView.fxml");
+            login.setApp(this);
+            mainStage.setHeight(login.HEIGHT);
+            mainStage.setWidth(login.WIDTH);
+            mainStage.setResizable(false);
+            mainStage.show();
+        } catch(Exception e) {
+            logger.log(Level.SEVERE, null, e);
+        }
+    }
+    
+    private void goToChat(){
+        try {
+            mainStage.hide();
+            
+            ChatViewController chat = (ChatViewController) replaceSceneContent("/fxml/ChatView.fxml");
+            chat.setApp(this);
+            mainStage.setHeight(chat.HEIGHT);
+            mainStage.setWidth(chat.WIDTH);
+            chat.setConstraints();
+            mainStage.setResizable(false);
+            mainStage.show();
+        } catch(Exception e) {
+            logger.log(Level.SEVERE, null, e);
+        }
+    }
+    
+    private Initializable replaceSceneContent(String fxml) throws Exception {
+        FXMLLoader loader = new FXMLLoader();
+        //GridPane page = loader.load(getClass().getResource(fxml));
+        
+        InputStream in = MainLauncher.class.getResourceAsStream(fxml);
+        loader.setBuilderFactory(new JavaFXBuilderFactory());
+        loader.setLocation(MainLauncher.class.getResource(fxml));
+        GridPane page;
+        
+        try {
+            page = (GridPane) loader.load(in);
+        } finally {
+            in.close();
+        }
+        
+        root.getChildren().clear();
+        root.getChildren().addAll(page);
+        
+        return (Initializable) loader.getController();
+    }
 }
