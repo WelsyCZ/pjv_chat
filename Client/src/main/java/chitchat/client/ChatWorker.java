@@ -12,8 +12,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 
 /**
  *
@@ -31,6 +34,7 @@ public class ChatWorker implements Runnable {
     private OutputStream os;
     private InputStream is;
     private ObjectInputStream input;
+    private boolean noKill = true;
     Logger logger = Logger.getLogger(getClass().getName());
 
     public ChatWorker(String username, String hostname, int port) {
@@ -48,7 +52,13 @@ public class ChatWorker implements Runnable {
         this.loginController = loginController;
     }
     
-    
+    public void kill() throws IOException{
+        noKill = false;
+        Message msg = new DisconnectMessage(username);
+        output.writeObject(msg);
+        input.close();
+        Platform.exit();
+    }
     
     @Override
     public void run() {
@@ -65,21 +75,33 @@ public class ChatWorker implements Runnable {
     
         try{
             connect();
+            Message rcvMsg;
             logger.log(Level.INFO, "Socket in and ready");
-            while(socket.isConnected()) {
-                continue;
+            while(noKill && socket.isConnected()) {
+                rcvMsg = (Message) input.readObject();
+                chatController.addToChat(rcvMsg);
             }
+        } catch (SocketTimeoutException se) {
+            logger.fine("socket timeout");
         } catch (IOException ioe) {
-            logger.log(Level.WARNING, "IOE", ioe);
+            logger.info("Disconnected.");
+            //logger.log(Level.WARNING, "IOE", ioe);
         } catch (DuplicateUsernameException due) { 
             logger.log(Level.WARNING, "Login attempt failed, username already exists!", due);
-        } catch (Exception e) {
+        } catch (ClassNotFoundException e) {
             logger.log(Level.SEVERE, "ClassNotFound", e);
         }
-    
+        try{
+        input.close();
+        output.close();
+        os.close();
+        is.close();
+        socket.close();
+        } catch(Exception e){
+            logger.log(Level.WARNING, "closing issue", e);
+        }
     
     }
-    
     
     private void connect() throws IOException, ClassNotFoundException, DuplicateUsernameException {
         ConnectMessage msg = new ConnectMessage(username);

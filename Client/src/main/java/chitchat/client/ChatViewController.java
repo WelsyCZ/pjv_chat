@@ -5,6 +5,9 @@
  */
 package chitchat.client;
 
+import chitchat.Message.ConfirmMessage;
+import chitchat.Message.ConnectMessage;
+import chitchat.Message.Message;
 import chitchat.Message.TextMessage;
 import java.io.IOException;
 import java.net.URL;
@@ -71,9 +74,32 @@ public class ChatViewController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         messagesArea.setEditable(false);
         messagesArea.setFocusTraversable(false);
+        messagesArea.setWrapText(true);
+        messageBox.setWrapText(true);
     }    
     
     public void visit(ChatWorker chatWorker){
         this.chatWorker = chatWorker;
+    }
+    
+    public void addToChat(Message msg){
+        switch(msg.getType()){
+            case TEXT:
+                msg = (TextMessage)msg;
+                String line = msg.getUsername() + ": " + msg.getContent() + "\n";
+                messagesArea.appendText(line);
+                break;
+            case CONFIRM:
+                System.out.println("confirm");
+                break;
+            case CONNECT:
+                System.out.println("connect");
+                break;
+            case STATUS:
+                System.out.println("status not implemented yet");
+                break;
+            default:
+                System.out.println("something effed up");
+        }
     }
 }

@@ -1,6 +1,7 @@
 package chitchat.Room;
 
 import chitchat.Message.Message;
+import chitchat.Message.MessageType;
 import chitchat.User.Status;
 import chitchat.User.User;
 
@@ -23,14 +24,16 @@ public class RoomServer
     private ServerSocket serverSocket;
     private Thread[] clientThreads;
     private HashMap<String, User> users;
-    private ArrayList<ObjectOutputStream> outputs;
+    //private ArrayList<ObjectOutputStream> outputs;
+    private HashMap<String, ObjectOutputStream> outputs;
 
     private static Logger logger = Logger.getLogger(RoomServer.class.getName());
 
     RoomServer()
     {
         logger.setLevel(Level.INFO);
-        outputs = new ArrayList<ObjectOutputStream>(CAPACITY);
+        //outputs = new ArrayList<ObjectOutputStream>(CAPACITY);
+        outputs = new HashMap<String, ObjectOutputStream>(CAPACITY);
         users = new HashMap<String, User>(CAPACITY);
     }
 
@@ -40,9 +43,19 @@ public class RoomServer
         srv.runServer();
     }
 
+    void addOutput(String username, ObjectOutputStream output){
+        outputs.put(username, output);
+    }
+    
     void broadcastMessage(Message msg) throws IOException {
-        for(final ObjectOutputStream output : outputs) {
-            output.writeObject(msg);
+        if(msg.getType() == MessageType.DISCONNECT){
+            users.remove(msg.getUsername());
+            outputs.remove(msg.getUsername());
+        } else{
+            logger.info("Attempting to broadcast msg: "+msg.getContent());
+            for(final ObjectOutputStream output : outputs.values()) {
+                output.writeObject(msg);
+            }
         }
     }
     

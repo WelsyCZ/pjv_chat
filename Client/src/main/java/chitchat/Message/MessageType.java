@@ -8,5 +8,5 @@ package chitchat.Message;
  */
 public enum MessageType
 {
-    TEXT, STATUS, CONNECT, CONFIRM 
+    TEXT, STATUS, CONNECT, CONFIRM, DISCONNECT
 }

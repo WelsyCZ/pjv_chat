@@ -6,6 +6,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
+import javafx.application.Platform;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.fxml.JavaFXBuilderFactory;
@@ -21,6 +24,11 @@ public class MainLauncher extends Application {
     private Stage mainStage;
     private Logger logger =  Logger.getLogger(getClass().getName());
     private ChatWorker chatWorker;
+    private Thread chatWorkerThread;
+
+    public void setChatWorkerThread(Thread chatWorkerThread) {
+        this.chatWorkerThread = chatWorkerThread;
+    }
     
     @Override
     public void start(Stage stage) throws Exception {
@@ -30,6 +38,18 @@ public class MainLauncher extends Application {
         mainStage.setTitle("ChitChat Client");
         mainStage.setScene(new Scene(makeContent()));
         mainStage.show();
+        mainStage.setOnCloseRequest(new EventHandler() {
+            @Override
+            public void handle(Event event) {
+                try{
+                chatWorker.kill();
+                Platform.exit();
+                } catch(Exception e) {
+                    logger.info(chatWorker.getUsername() + " is logging out");
+                }
+            }
+            
+        });
         
     }
 
@@ -78,6 +98,7 @@ public class MainLauncher extends Application {
             ChatViewController chat = (ChatViewController) replaceSceneContent("/fxml/ChatView.fxml");
             chat.setApp(this);
             chat.visit(this.chatWorker);
+            chatWorker.setChatController(chat);
             mainStage.setHeight(chat.HEIGHT);
             mainStage.setWidth(chat.WIDTH);
             chat.setConstraints();

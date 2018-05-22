@@ -19,7 +19,7 @@ public class ConnectMessage implements Message, Serializable {
         this.username = username;
         this.type = MessageType.CONNECT;
     }
-    
+
     @Override
     public MessageType getType() {
         return type;
@@ -35,6 +35,10 @@ public class ConnectMessage implements Message, Serializable {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+    
+    public String getContent(){
+        return "ConnectMessage";
     }
     
     

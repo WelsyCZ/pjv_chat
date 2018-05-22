@@ -18,6 +18,7 @@ public class ClientHandler extends Thread
     private ObjectOutputStream output;
     private ObjectInputStream input;
     private Logger logger = Logger.getLogger(ClientHandler.class.getName());
+    private String username;
 
     ClientHandler(Socket socket, RoomServer roomServer){
         this.clientSocket = socket;
@@ -26,7 +27,8 @@ public class ClientHandler extends Thread
     
     public boolean authenticate() throws IOException, ClassNotFoundException {
         ConnectMessage first = (ConnectMessage) input.readObject(); 
-        return roomServer.addUser(first.getUsername());
+        username = first.getUsername();
+        return roomServer.addUser(username);
     }
 
     
@@ -46,6 +48,7 @@ public class ClientHandler extends Thread
             } else {
                 conf = new ConfirmMessage("SERVER", false);
             }
+            roomServer.addOutput(username, output);
             output.writeObject(conf);
             if(conf.getUsernameAvailable()) {
                 Message receivedMsg;
@@ -53,10 +56,11 @@ public class ClientHandler extends Thread
                 {
                     try{
                         receivedMsg = (Message) input.readObject();
-                        System.out.println( ((TextMessage) receivedMsg).getContent());
-                        //roomServer.broadcastMessage(receivedMsg);
+                        //System.out.println( ((TextMessage) receivedMsg).getContent());
+                        roomServer.broadcastMessage(receivedMsg);
                     } catch (IOException e) {
-                        logger.warning("error while broadcasting message");
+                        logger.info("Error in transmission - probably due to a disconnect");
+                        break;
                     }
                 }
             }

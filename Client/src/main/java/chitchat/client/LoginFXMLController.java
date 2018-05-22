@@ -35,6 +35,7 @@ public class LoginFXMLController implements Initializable
         this.chatWorker = new ChatWorker(uname, "localhost", 44444);
         chatWorker.setLoginController(this);
         Thread chatWorkerThread = new Thread(chatWorker);
+        app.setChatWorkerThread(chatWorkerThread);
         chatWorkerThread.start();
         actiontarget.setText("Connecting...");
         app.userLogging(uname, chatWorker);

@@ -37,5 +37,9 @@ public class ConnectMessage implements Message, Serializable {
         this.username = username;
     }
     
+    public String getContent(){
+        return "ConnectMessage";
+    }
+    
     
 }

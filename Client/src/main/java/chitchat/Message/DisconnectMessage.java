@@ -11,32 +11,33 @@ import java.io.Serializable;
  *
  * @author milan
  */
-public class ConfirmMessage implements Message, Serializable{
-    private String username;
-    private final MessageType type;
-    private final boolean usernameAvailable;
+public class DisconnectMessage implements Message, Serializable{
+     private String username;
+    private MessageType type;
 
-    public ConfirmMessage(String username, boolean usernameAvailable) {
+    public DisconnectMessage(String username) {
         this.username = username;
-        this.usernameAvailable = usernameAvailable;
-        this.type = MessageType.CONFIRM;
-        
+        this.type = MessageType.DISCONNECT;
     }
 
     @Override
     public MessageType getType() {
         return type;
     }
-    
-    public boolean getUsernameAvailable(){
-        return usernameAvailable;
+
+    public void setType(MessageType type) {
+        this.type = type;
     }
 
     public String getUsername() {
         return username;
     }
 
+    public void setUsername(String username) {
+        this.username = username;
+    }
+    
     public String getContent(){
-        return "ConfirmMessage";
+        return "ConnectMessage";
     }
 }
