@@ -3,6 +3,8 @@ package chitchat.client;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -22,14 +24,21 @@ public class LoginFXMLController implements Initializable
     final int WIDTH = 250;
     final int HEIGHT = 180;
     private MainLauncher app;
+    private ChatWorker chatWorker;
     
     void setApp(MainLauncher ml){
         this.app = ml;
     }
     
     @FXML protected void connectButtonAction(ActionEvent e) throws IOException{
-       actiontarget.setText("Connecting...");
-       app.userLogging(username.getText());
+        String uname = username.getText();
+        this.chatWorker = new ChatWorker(uname, "localhost", 44444);
+        chatWorker.setLoginController(this);
+        Thread chatWorkerThread = new Thread(chatWorker);
+        chatWorkerThread.start();
+        actiontarget.setText("Connecting...");
+        app.userLogging(uname, chatWorker);
+        
        //Parent mainChatWindow = FXMLLoader.load(getClass().getResource("/fxml/ChatView.fxml"));
        
        

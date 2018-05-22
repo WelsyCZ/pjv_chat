@@ -20,6 +20,7 @@ public class MainLauncher extends Application {
     private Group root = new Group();
     private Stage mainStage;
     private Logger logger =  Logger.getLogger(getClass().getName());
+    private ChatWorker chatWorker;
     
     @Override
     public void start(Stage stage) throws Exception {
@@ -50,8 +51,9 @@ public class MainLauncher extends Application {
         return this.root;
     }
     
-    void userLogging(String s) {
-        System.out.println("usr loggin " +s);
+    void userLogging(String s, ChatWorker chatWorker) {
+        logger.info("User "+s+" has just logged in");
+        this.chatWorker = chatWorker;
         goToChat();
     }
     
@@ -75,6 +77,7 @@ public class MainLauncher extends Application {
             
             ChatViewController chat = (ChatViewController) replaceSceneContent("/fxml/ChatView.fxml");
             chat.setApp(this);
+            chat.visit(this.chatWorker);
             mainStage.setHeight(chat.HEIGHT);
             mainStage.setWidth(chat.WIDTH);
             chat.setConstraints();
