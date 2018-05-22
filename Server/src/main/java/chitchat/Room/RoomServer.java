@@ -76,6 +76,10 @@ public class RoomServer
     {
         this.running = false;
     }
+    
+    public void sendStatusMessage(){
+        //Message msg = new
+    }
 
     private void runServer()
     {

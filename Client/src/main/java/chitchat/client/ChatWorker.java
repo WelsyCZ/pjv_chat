@@ -6,6 +6,7 @@
 package chitchat.client;
 
 import chitchat.Message.*;
+import chitchat.User.User;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -14,6 +15,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
@@ -35,12 +37,14 @@ public class ChatWorker implements Runnable {
     private InputStream is;
     private ObjectInputStream input;
     private boolean noKill = true;
+    private HashMap<String, User> users;
     Logger logger = Logger.getLogger(getClass().getName());
 
     public ChatWorker(String username, String hostname, int port) {
         this.username = username;
         this.hostname = hostname;
         this.port = port;
+        this.users = new HashMap<String, User>();
     }
 
     void setChatController(ChatViewController chatController) {

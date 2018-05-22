@@ -32,6 +32,7 @@ public class ClientHandler extends Thread
     }
 
     
+    
     @Override
     public void run()
     {
@@ -51,6 +52,7 @@ public class ClientHandler extends Thread
             roomServer.addOutput(username, output);
             output.writeObject(conf);
             if(conf.getUsernameAvailable()) {
+                roomServer.sendStatusMessage();
                 Message receivedMsg;
                 while (roomServer.isUp() && clientSocket.isConnected())
                 {

@@ -14,6 +14,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -76,6 +77,7 @@ public class ChatViewController implements Initializable {
         messagesArea.setFocusTraversable(false);
         messagesArea.setWrapText(true);
         messageBox.setWrapText(true);
+        ObservableList<User> users;
     }    
     
     public void visit(ChatWorker chatWorker){
