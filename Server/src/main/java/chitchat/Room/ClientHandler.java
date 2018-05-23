@@ -9,7 +9,11 @@ import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.logging.Logger;
-
+/**
+ * Handler for clients
+ * every handler runs in its own thread
+ * @author milan
+ */
 public class ClientHandler extends Thread
 {
     private Socket clientSocket;
@@ -20,12 +24,17 @@ public class ClientHandler extends Thread
     private ObjectInputStream input;
     private Logger logger = Logger.getLogger(ClientHandler.class.getName());
     private String username;
-
+    // constructor only callable by the server
     ClientHandler(Socket socket, RoomServer roomServer){
         this.clientSocket = socket;
         this.roomServer = roomServer;
     }
-    
+    /**
+     * this method reads the first message and passes the usernaem authentication request to the server
+     * @return true if username is available, false if not
+     * @throws IOException
+     * @throws ClassNotFoundException 
+     */
     public boolean authenticate() throws IOException, ClassNotFoundException {
         ConnectMessage first = (ConnectMessage) input.readObject(); 
         username = first.getUsername();
@@ -33,7 +42,10 @@ public class ClientHandler extends Thread
     }
 
     
-    
+    /**
+     * The Thread method
+     * listents and retransmits almost all the messages
+     */
     @Override
     public void run()
     {
@@ -45,26 +57,26 @@ public class ClientHandler extends Thread
             input = new ObjectInputStream(is);
             
             ConfirmMessage conf;
-            if(authenticate()){
+            if(authenticate()){ //accept/deny the request
                 conf = new ConfirmMessage("SERVER", true);
             } else {
                 conf = new ConfirmMessage("SERVER", false);
             }
-            roomServer.addOutput(username, output);
+            
             output.writeObject(conf);
             if(conf.getUsernameAvailable()) {
+                roomServer.addOutput(username, output); //add new output stream to write to
                 Message receivedMsg;
-                roomServer.sendStatusMessage();
-                while (roomServer.isUp() && clientSocket.isConnected())
+                roomServer.sendStatusMessage(); //update clients - new client
+                while (roomServer.isUp() && clientSocket.isConnected()) // MAIN LOOP - Read message, broadcast message
                 {
                     try{
                         receivedMsg = (Message) input.readObject();
-                        if(receivedMsg.getType() == MessageType.STATUS){
+                        if(receivedMsg.getType() == MessageType.STATUS){ //changeStatus messages do not get retransmitted
                             roomServer.changeStatus(receivedMsg.getUsername(), ((StatusMessage)receivedMsg).getStatus());
                             continue;
                         }
-                        //System.out.println( ((TextMessage) receivedMsg).getContent());
-                        roomServer.broadcastMessage(receivedMsg);
+                        roomServer.broadcastMessage(receivedMsg); //send the message to all clients
                     } catch (IOException e) {
                         logger.info("Error in transmission - probably due to a disconnect");
                         System.out.println("users: "+roomServer.users.size()+ " outputs: "+roomServer.outputs.size());
