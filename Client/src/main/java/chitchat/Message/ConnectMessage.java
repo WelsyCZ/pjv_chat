@@ -8,35 +8,39 @@ package chitchat.Message;
 import java.io.Serializable;
 
 /**
- *
- * @author milan
+ * First message to be sent to the server, only contains username
+ * @author welsemil
  */
 public class ConnectMessage implements Message, Serializable {
     private String username;
     private MessageType type;
-
+    /**
+     * constructor
+     * @param username is the name of the user joining the server
+     */
     public ConnectMessage(String username) {
         this.username = username;
         this.type = MessageType.CONNECT;
     }
 
-    @Override
+    /**
+     * 
+     * @return the message type, value from the MessageType enum
+     */
     public MessageType getType() {
         return type;
     }
-
-    public void setType(MessageType type) {
-        this.type = type;
-    }
-
+    /**
+     * username getter
+     * @return the username
+     */
     public String getUsername() {
         return username;
     }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-    
+    /**
+     * 
+     * @return short String description of the message
+     */
     public String getContent(){
         return "ConnectMessage";
     }

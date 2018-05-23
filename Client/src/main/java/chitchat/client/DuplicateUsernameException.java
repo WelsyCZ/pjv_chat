@@ -1,13 +1,9 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package chitchat.client;
 
 /**
- *
- * @author milan
+ * Special exception, thrown when server responds,
+ * that a username is already in use
+ * @author welsemil
  */
 public class DuplicateUsernameException extends Exception{
 

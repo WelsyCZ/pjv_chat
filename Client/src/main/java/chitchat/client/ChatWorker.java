@@ -13,7 +13,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.logging.Level;
@@ -21,8 +20,10 @@ import java.util.logging.Logger;
 import javafx.application.Platform;
 
 /**
- *
- * @author milan
+ * Essentially a background listener for receiving messages
+ * runs in its own thread
+ * used for certain utilities
+ * @author welsemil
  */
 public class ChatWorker implements Runnable {
     
@@ -31,42 +32,57 @@ public class ChatWorker implements Runnable {
     private final String hostname;
     private final int port;
     private ChatViewController chatController;
-    private LoginFXMLController loginController;
+    LoginFXMLController loginController; //package access because of logout
     private ObjectOutputStream output;
     private OutputStream os;
     private InputStream is;
     private ObjectInputStream input;
     private boolean noKill = true;
-    private HashMap<String, User> users;
     Logger logger = Logger.getLogger(getClass().getName());
 
+    /**
+     * Constructor
+     * @param username Master's name
+     * @param hostname the name/adress on which we are listening
+     * @param port the port on which we are listening
+     */
     public ChatWorker(String username, String hostname, int port) {
         this.username = username;
         this.hostname = hostname;
         this.port = port;
-        this.users = new HashMap<String, User>();
     }
-
+    //for getting the instance of ChatController (FXML)
     void setChatController(ChatViewController chatController) {
         this.chatController = chatController;
         chatController.visit(this);
+        chatController.setUnameLabel("You: "+username);
     }
-    
+    //for getting the logincontroller instance (FXML)
     void setLoginController(LoginFXMLController loginController){
         this.loginController = loginController;
     }
     
+    /**
+     * shuts down the thread and disconnects
+     * @throws IOException 
+     */
     public void kill() throws IOException{
         noKill = false;
-        Message msg = new DisconnectMessage(username);
-        output.writeObject(msg);
+        Message msg = new DisconnectMessage(username); //goodbye message
+        output.writeObject(msg); //send the message
         input.close();
         Platform.exit();
     }
     
+    /**
+     * The thread method, this method runs in a separate thread
+     * maintains connection with server, receives messages,
+     * calls appropriate methods
+     */
     @Override
     public void run() {
         try{
+            // we use ObjectStreams for communication as we use Serializable Messages
             socket = new Socket(hostname, port);
             os = socket.getOutputStream();
             output = new ObjectOutputStream(os);
@@ -78,28 +94,34 @@ public class ChatWorker implements Runnable {
         }
     
         try{
-            connect();
-            
+            connect(); // handshake with the server
             logger.log(Level.INFO, "Socket in and ready");
+            // the main listening loop
             while(noKill && socket.isConnected()) {
-                Message rcvMsg = null;
-                rcvMsg = (Message) input.readObject();
-                if(rcvMsg == null) System.out.println("rcv was null");
-                if(chatController == null) System.out.println("chatController null");
-                while(chatController == null) continue;
-                chatController.addToChat(rcvMsg);
+                //read a message from the input stream
+                //we're using the Message interface, polymorphism is cool
+                Message rcvMsg = (Message) input.readObject();
+                while(chatController == null) continue; // wait for the loadup
+                // special behavior for file messages, sadly not implemented
+                if(rcvMsg.getType() == MessageType.FILE){
+                    fileTransfer((FileMessage) rcvMsg);
+                } else {
+                    // call controller method to exectude required actions
+                    chatController.addToChat(rcvMsg);
+                }
             }
         } catch (SocketTimeoutException se) {
             logger.fine("socket timeout");
         } catch (IOException ioe) {
             logger.info("Disconnected.");
-            //logger.log(Level.WARNING, "IOE", ioe);
         } catch (DuplicateUsernameException due) { 
             logger.log(Level.WARNING, "Login attempt failed, username already exists!", due);
+            loginController.logoutScene(true);
         } catch (ClassNotFoundException e) {
             logger.log(Level.SEVERE, "ClassNotFound", e);
         }
         try{
+            // close all the streams
         input.close();
         output.close();
         os.close();
@@ -110,7 +132,9 @@ public class ChatWorker implements Runnable {
         }
     
     }
-    
+    // The handshake method
+    // gives server the username, server responds whether its avaible
+    // uses CONNECT and CONFIRM messages
     private void connect() throws IOException, ClassNotFoundException, DuplicateUsernameException {
         ConnectMessage msg = new ConnectMessage(username);
         sendMessage(msg);
@@ -119,27 +143,22 @@ public class ChatWorker implements Runnable {
             throw new DuplicateUsernameException();
         
     }
-    
+    /**
+     * API for sending a message
+     * @param msg any message object to be sent
+     * @throws IOException 
+     */
     public void sendMessage(Message msg) throws IOException {
-        switch(msg.getType()){
-            case TEXT:
-                msg = (TextMessage) msg;
-                break;
-            case CONFIRM:
-                msg = (ConfirmMessage) msg;
-                break;
-            case CONNECT:
-                msg = (ConnectMessage) msg;
-                break;
-            case STATUS:
-                System.out.println("status not implemented yet");
-                break;
-            default:
-                System.out.println("something effed up");
-        }
         output.writeObject(msg);
     }
-
+    // to handle the fileTransfer, not implemented
+    private void fileTransfer(FileMessage msg){
+        
+    }
+    /**
+     * username getter
+     * @return username
+     */
     public String getUsername() {
         return username;
     }

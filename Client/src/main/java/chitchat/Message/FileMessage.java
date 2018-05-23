@@ -16,7 +16,17 @@ public class FileMessage implements Message, Serializable {
 
     private MessageType type;
     private String username;
-    private File file;
+    private boolean agree;
+
+    public FileMessage(String username, boolean agree){
+        this.username = username;
+        this.agree = agree;
+        type = MessageType.FILE;
+    }
+    
+    public boolean getAgree(){
+        return agree;
+    }
     
     @Override
     public MessageType getType() {
@@ -30,7 +40,7 @@ public class FileMessage implements Message, Serializable {
 
     @Override
     public String getContent() {
-        return file.getName();
+        return "file send request";
     }
     
 }
