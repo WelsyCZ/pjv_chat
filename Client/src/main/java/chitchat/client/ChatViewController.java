@@ -158,7 +158,6 @@ public class ChatViewController implements Initializable {
                 messagesArea.appendText(line);
                 break;
             case STATUS:
-                System.out.println("status");
                 StatusUpdateMessage sumsg = (StatusUpdateMessage) msg;
                 users = null;
                 users = sumsg.getUsers().clone();

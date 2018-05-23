@@ -72,7 +72,13 @@ public class RoomServer
                 output.flush();
                 output.writeObject(msg);
             }
-        } else {
+        } else if(msg.getType() == MessageType.STATUS) {
+            logger.info("updating status");
+            for(final ObjectOutputStream output : outputs.values()){
+                output.reset();
+                output.writeObject(msg);
+            }
+        }else {
             logger.info("Attempting to broadcast msg: "+msg.getContent());
             
             for(final ObjectOutputStream output : outputs.values()) {
