@@ -16,6 +16,10 @@ import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Server class for one chatroom
+ * @author welsemil
+ */
 public class RoomServer
 {
     private static final int CAPACITY = 10;
@@ -24,46 +28,57 @@ public class RoomServer
     private boolean running = true;
     private ServerSocket serverSocket;
     private Thread[] clientThreads;
-    HashMap<String, User> users;
-    //private ArrayList<ObjectOutputStream> outputs;
-    HashMap<String, ObjectOutputStream> outputs;
+    HashMap<String, User> users; //dictionairy to get user objects from strings
+    HashMap<String, ObjectOutputStream> outputs; //dictionary to get specific output streams if necessary
 
     private static Logger logger = Logger.getLogger(RoomServer.class.getName());
 
+    /* NOT PUBLIC
+     * Very basic constructor, only initialize collections and logger
+     */
     RoomServer()
     {
         logger.setLevel(Level.INFO);
-        //outputs = new ArrayList<ObjectOutputStream>(CAPACITY);
         outputs = new HashMap<String, ObjectOutputStream>(CAPACITY);
         users = new HashMap<String, User>(CAPACITY);
     }
-
+    /**
+     * This is the Server Launcher, main function calls the package private constructor and starts the server
+     * @param args 
+     */
     public static void main(String[] args)
     {
         RoomServer srv = new RoomServer();
         srv.runServer();
     }
-
+    
+    //add a String username : output stream pair to our dictionary
     void addOutput(String username, ObjectOutputStream output){
         outputs.put(username, output);
     }
-    
+    // Method to send a message to all connected clients
+    // also parses disconnects
     void broadcastMessage(Message msg) throws IOException {
         if(msg.getType() == MessageType.DISCONNECT){
             users.remove(msg.getUsername());
             outputs.remove(msg.getUsername());
             logger.info(msg.getUsername()+ " has disconnected.");
+            sendStatusMessage(); //update users of the disconnected client
         } else{
             logger.info("Attempting to broadcast msg: "+msg.getContent());
+            
             for(final ObjectOutputStream output : outputs.values()) {
                 output.flush();
-                System.out.println("broadcast size: "+((StatusUpdateMessage) msg).getUsers().values().size());
                 output.writeObject(msg);
                 
             }
         }
     }
-    
+    /**
+     * Adds a user if user with such username doesnt yet exist
+     * @param username the desired username
+     * @return true on success, false otherwise
+     */
     public boolean addUser(String username){
         if(users.containsKey(username)) 
             return false;
@@ -72,20 +87,45 @@ public class RoomServer
         return true;
     }
     
+    /**
+     * Method to change a status of a user (bugged)
+     * @param username who's status we're changing
+     * @param status the new status
+     * - the changes go through fine, status gets updated, the right thing is put into the stream
+     * but the status does not change on the client side
+     */
+    public void changeStatus(String username, Status status){
+        users.get(username).setStatus(status);
+        System.out.println("Changed status of "+username+" to "+users.get(username).getStatus());
+        sendStatusMessage(); //update clients about the change
+    }
+    /**
+     * Used to check on whether the server is running
+     * @return true if running, false if not
+     */
     public boolean isUp()
     {
         return running;
     }
 
+    /**
+     * Stop the server
+     * this will stop the main loop, resulting in all the threads joining and exitting safely
+     */
     public void kill()
     {
         this.running = false;
     }
     
+    /**
+     * Updating method, sends out the current list of connected users with their statuses
+     */
     public void sendStatusMessage(){
         try{
-            Message msg = new StatusUpdateMessage(users);
-            //System.out.println("sendStatusMessage - size: "+((StatusUpdateMessage)msg).getUsers().values().size());
+            ArrayList<User> al = new ArrayList<User>(users.values());
+            User[] usrs = new User[this.CAPACITY];
+            al.toArray(usrs);
+            Message msg = new StatusUpdateMessage(usrs);
             broadcastMessage(msg);
         } catch(IOException e) {
            logger.warning("failed to send status message");

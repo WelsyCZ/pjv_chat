@@ -3,7 +3,8 @@ package chitchat.Room;
 import chitchat.Message.ConfirmMessage;
 import chitchat.Message.ConnectMessage;
 import chitchat.Message.Message;
-import chitchat.Message.TextMessage;
+import chitchat.Message.MessageType;
+import chitchat.Message.StatusMessage;
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
@@ -53,10 +54,15 @@ public class ClientHandler extends Thread
             output.writeObject(conf);
             if(conf.getUsernameAvailable()) {
                 Message receivedMsg;
+                roomServer.sendStatusMessage();
                 while (roomServer.isUp() && clientSocket.isConnected())
                 {
                     try{
                         receivedMsg = (Message) input.readObject();
+                        if(receivedMsg.getType() == MessageType.STATUS){
+                            roomServer.changeStatus(receivedMsg.getUsername(), ((StatusMessage)receivedMsg).getStatus());
+                            continue;
+                        }
                         //System.out.println( ((TextMessage) receivedMsg).getContent());
                         roomServer.broadcastMessage(receivedMsg);
                     } catch (IOException e) {

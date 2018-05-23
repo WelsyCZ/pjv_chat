@@ -8,35 +8,39 @@ package chitchat.Message;
 import java.io.Serializable;
 
 /**
- *
- * @author milan
+ * Last message to be sent to server - sent when disconnecting
+ * @author welsemil
  */
 public class DisconnectMessage implements Message, Serializable{
      private String username;
     private MessageType type;
-
+    /**
+     * constructor
+     * @param username who is disconnecting
+     */
     public DisconnectMessage(String username) {
         this.username = username;
         this.type = MessageType.DISCONNECT;
     }
 
-    @Override
+    /**
+     * 
+     * @return type of the message from MessageType enum
+     */
     public MessageType getType() {
         return type;
     }
-
-    public void setType(MessageType type) {
-        this.type = type;
-    }
-
+    /**
+     * username getter
+     * @return username
+     */
     public String getUsername() {
         return username;
     }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-    
+    /**
+     * 
+     * @return short description
+     */
     public String getContent(){
         return "ConnectMessage";
     }

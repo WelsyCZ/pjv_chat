@@ -5,28 +5,35 @@
  */
 package chitchat.Message;
 
-import chitchat.User.User;
+import chitchat.User.Status;
 import java.io.Serializable;
 
 /**
- * StatusUpdateMessage is only sent by server to clients
- * refreshes the lists of online users
+ *  Intended for changing the status of a user
  * @author welsemil
  */
-public class StatusUpdateMessage implements Message, Serializable {
-
-    private String username;
+public class StatusMessage implements Message, Serializable{
     private MessageType type;
-    private final User[] users;
+    private Status status;
+    private String username;
+
     /**
-     * constructor
-     * @param users all connected instances of User in an array
+     * Constructor
+     * @param username who's status will be changed
+     * @param status the new status value from Status enum
      */
-    public StatusUpdateMessage(User[] users) {
-        this.users = users;
+    public StatusMessage(String username, Status status) {
+        this.status = status;
+        this.username = username;
         this.type = MessageType.STATUS;
     }
-
+    /**
+     * Status getter
+     * @return new status
+     */
+    public Status getStatus(){
+        return status;
+    }
     /**
      * type getter
      * @return message type
@@ -42,20 +49,12 @@ public class StatusUpdateMessage implements Message, Serializable {
     public String getUsername() {
         return username;
     }
-
     /**
-     * Description getter
+     * description getter
      * @return short description
      */
     public String getContent() {
-        return "StatusUpdate";
-    }
-    /**
-     * Users getter
-     * @return User[] array, all connected users
-     */
-    public User[] getUsers(){
-        return users;
+        return "status msg";
     }
     
 }
