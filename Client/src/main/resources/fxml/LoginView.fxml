@@ -34,7 +34,7 @@
         </HBox>
 
         <Text fx:id="actiontarget"
-            GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+            GridPane.columnIndex="0" GridPane.rowIndex="5"/>
         
     </children>
 </GridPane>
