@@ -14,6 +14,8 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.event.ActionEvent;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
@@ -108,6 +110,12 @@ public class ChatViewController implements Initializable {
         messageBox.setWrapText(true);
         onlineArea.setEditable(false);
         onlineArea.setFocusTraversable(false);
+        messageBox.addEventFilter(KeyEvent.KEY_PRESSED, ke -> {
+            if (ke.getCode().equals(KeyCode.ENTER)) {
+                    sendPressed(null);
+                ke.consume();
+            }
+        });
         ready = true;
         
     }    
@@ -142,12 +150,12 @@ public class ChatViewController implements Initializable {
         }
     }
     // to return to the login screen
-    private void logout(){
+    private void logout(ActionEvent e){
         try{
             chatWorker.kill(); //stop the worker thread
             //show the login screen, false flag indicates no error
             chatWorker.loginController.logoutScene(false); 
-        } catch (Exception e) {
+        } catch (Exception ex) {
             logger.warning("error");
         }
     }

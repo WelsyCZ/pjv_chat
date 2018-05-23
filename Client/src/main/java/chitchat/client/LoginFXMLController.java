@@ -3,6 +3,7 @@ package chitchat.client;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -13,6 +14,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
@@ -61,6 +64,16 @@ public class LoginFXMLController implements Initializable
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         username.setPromptText("Username");
+        username.addEventFilter(KeyEvent.KEY_PRESSED, ke -> {
+            if (ke.getCode().equals(KeyCode.ENTER)) {
+                    try{
+                        connectButtonAction(null);
+                    } catch (IOException e){
+                        e.printStackTrace();
+                    }
+                ke.consume();
+            }
+        });
     }    
     
     /**
