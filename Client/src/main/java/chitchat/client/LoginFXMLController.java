@@ -27,9 +27,11 @@ import javafx.stage.Stage;
 public class LoginFXMLController implements Initializable 
 {
     @FXML private TextField username;
+    @FXML private TextField hostnameField;
+    @FXML private TextField portField;
     //window parameters
     final int WIDTH = 250;
-    final int HEIGHT = 180;
+    final int HEIGHT = 240;
     private MainLauncher app;
     private ChatWorker chatWorker;
     
@@ -45,8 +47,11 @@ public class LoginFXMLController implements Initializable
     // the connect button, also known as "Sign in" button
     @FXML protected void connectButtonAction(ActionEvent e) throws IOException{
         String uname = username.getText(); //get the username from the textfield
+        String hostname = hostnameField.getText();
+        if(uname.equals("") || hostname.equals("") || portField.getText().equals("")) return;
+        int port = Integer.parseInt(portField.getText());
         // setup our worker on an adress and a port, with our username
-        this.chatWorker = new ChatWorker(uname, "localhost", 44444);
+        this.chatWorker = new ChatWorker(uname, hostname, port);
         chatWorker.setLoginController(this);
         Thread chatWorkerThread = new Thread(chatWorker);
         app.setChatWorkerThread(chatWorkerThread); //setup and launch the worker thread
@@ -64,7 +69,7 @@ public class LoginFXMLController implements Initializable
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         username.setPromptText("Username");
-        username.addEventFilter(KeyEvent.KEY_PRESSED, ke -> {
+        portField.addEventFilter(KeyEvent.KEY_PRESSED, ke -> {
             if (ke.getCode().equals(KeyCode.ENTER)) {
                     try{
                         connectButtonAction(null);
@@ -74,6 +79,8 @@ public class LoginFXMLController implements Initializable
                 ke.consume();
             }
         });
+        
+        
     }    
     
     /**

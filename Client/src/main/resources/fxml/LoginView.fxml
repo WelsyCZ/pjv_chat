@@ -23,9 +23,17 @@
 
         <Label text="Username:"
             GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+      <Label text="Hostname:"
+             GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+      <Label text="PORT:"
+            GridPane.columnIndex="0" GridPane.rowIndex="4"/>
 
-        <TextField fx:id="username"
+             <TextField fx:id="username"
             GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+        <TextField fx:id="hostnameField"
+            GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+        <TextField fx:id="portField"
+            GridPane.columnIndex="1" GridPane.rowIndex="4"/>
     
         <HBox spacing="10" alignment="bottom_right" 
              GridPane.columnIndex="1" GridPane.rowIndex="5">
