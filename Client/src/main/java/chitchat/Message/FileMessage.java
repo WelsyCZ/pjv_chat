@@ -5,27 +5,44 @@
  */
 package chitchat.Message;
 
-import java.io.File;
 import java.io.Serializable;
 
 /**
- *
- * @author milan
+ * File transfer class
+ * @author welsemil
  */
 public class FileMessage implements Message, Serializable {
 
     private MessageType type;
     private String username;
-    private boolean agree;
-
-    public FileMessage(String username, boolean agree){
+    private byte[] data;
+    private String filename;
+    
+    /**
+     * constructor
+     * @param username senders username
+     * @param data transferred file as bytes
+     * @param filename 
+     */
+    public FileMessage(String username, byte[] data, String filename){
         this.username = username;
-        this.agree = agree;
+        this.data = data;
+        this.filename = filename;
         type = MessageType.FILE;
     }
-    
-    public boolean getAgree(){
-        return agree;
+    /**
+     * filename getter
+     * @return String Filename
+     */
+    public String getFilename() {
+        return filename;
+    }
+    /**
+     * file as bytes getter
+     * @return byte[] file
+     */
+    public byte[] getData() {
+        return data;
     }
     
     @Override

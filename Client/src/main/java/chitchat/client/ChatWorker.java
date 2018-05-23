@@ -15,9 +15,14 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
+import java.util.Optional;
+import java.util.concurrent.FutureTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
 
 /**
  * Essentially a background listener for receiving messages
@@ -104,7 +109,7 @@ public class ChatWorker implements Runnable {
                 while(chatController == null) continue; // wait for the loadup
                 // special behavior for file messages, sadly not implemented
                 if(rcvMsg.getType() == MessageType.FILE){
-                    fileTransfer((FileMessage) rcvMsg);
+                   fileTransfer((FileMessage) rcvMsg);
                 } else {
                     // call controller method to exectude required actions
                     chatController.addToChat(rcvMsg);
@@ -153,8 +158,24 @@ public class ChatWorker implements Runnable {
     }
     // to handle the fileTransfer, not implemented
     private void fileTransfer(FileMessage msg){
-        
+        Runnable rnb = new Runnable(){
+            @Override
+            public void run() {
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("Incoming file transfer");
+                alert.setHeaderText("User "+msg.getUsername()+" has sent a file" );
+                alert.setContentText("Do you want to save it?");
+                Optional<ButtonType> result = alert.showAndWait();
+                if (result.isPresent() && result.get() == ButtonType.OK){
+                    chatController.saveFile(msg);
+                }
+            }
+            
+        };
+        Platform.runLater(rnb);
     }
+    
+    
     /**
      * username getter
      * @return username

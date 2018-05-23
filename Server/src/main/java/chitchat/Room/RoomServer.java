@@ -64,7 +64,15 @@ public class RoomServer
             outputs.remove(msg.getUsername());
             logger.info(msg.getUsername()+ " has disconnected.");
             sendStatusMessage(); //update users of the disconnected client
-        } else{
+        } else if(msg.getType() == MessageType.FILE){
+            logger.info("Sending file");
+            ObjectOutputStream authorStream = outputs.get(msg.getUsername());
+            for (final ObjectOutputStream output : outputs.values()) {
+                if(output == authorStream) continue;
+                output.flush();
+                output.writeObject(msg);
+            }
+        } else {
             logger.info("Attempting to broadcast msg: "+msg.getContent());
             
             for(final ObjectOutputStream output : outputs.values()) {

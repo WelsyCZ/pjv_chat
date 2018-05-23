@@ -8,6 +8,9 @@ import chitchat.Message.TextMessage;
 import chitchat.User.Status;
 import chitchat.User.User;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -24,6 +27,11 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
 import javafx.stage.FileChooser;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.Path;
+import javafx.scene.control.Alert;
+import javafx.stage.DirectoryChooser;
 
 /**
  * Chat FXML Controller class
@@ -86,15 +94,26 @@ public class ChatViewController implements Initializable {
         FileChooser fileChooser = new FileChooser();
         File file = fileChooser.showOpenDialog(app.getMainStage());
         if(file != null) {
-            Message msg = new FileMessage(chatWorker.getUsername(), true);
+            FileInputStream fis;
             try {
+                fis = new FileInputStream(file);
+                Path path = file.toPath();
+                byte[] data = Files.readAllBytes(path);
+                Message msg = new FileMessage(chatWorker.getUsername(), data, file.getName());
                 chatWorker.sendMessage(msg);
-                chatWorker.wait();
-            } catch (IOException ex) {
-                logger.warning("failed sending a file send request");
-            } catch (InterruptedException ex) {
-                logger.log(Level.WARNING, "interrupt", ex);
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(ChatViewController.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex){
+                Logger.getLogger(ChatViewController.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (OutOfMemoryError ex){
+                Logger.getLogger(ChatViewController.class.getName()).log(Level.SEVERE, "File too big", ex);
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Too large file");
+                alert.setContentText("The file you have chosen is too large!");
+                alert.showAndWait();
             }
+            
+            
         }
     }
     
@@ -170,6 +189,33 @@ public class ChatViewController implements Initializable {
             line = user.getName() + " - " + user.getStatus() + "\n";
             onlineArea.appendText(line);
         }
+    }
+    
+    void saveFile(FileMessage msg){
+        DirectoryChooser chooser = new DirectoryChooser();
+        chooser.setTitle("Where would you like to save the file?");
+        File selectedDirectory = chooser.showDialog(app.getMainStage());
+        File newFile = new File(selectedDirectory.getPath() + File.separator + msg.getFilename());
+        
+        try {
+            if(!newFile.exists())
+                newFile.createNewFile();
+            FileOutputStream fos = new FileOutputStream(newFile);
+            fos.write(msg.getData());
+            fos.flush();
+            fos.close();
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Success");
+            alert.setHeaderText(newFile.getPath());
+            alert.setContentText("Your file has been saved!");
+            alert.show();
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(ChatViewController.class.getName()).log(Level.SEVERE, "file not found??", ex);
+        } catch (IOException ex) {
+            Logger.getLogger(ChatViewController.class.getName()).log(Level.SEVERE, "IOexceptiono", ex);
+        }
+        
+        
     }
     
 }

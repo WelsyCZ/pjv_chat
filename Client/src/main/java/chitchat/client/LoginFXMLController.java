@@ -80,6 +80,8 @@ public class LoginFXMLController implements Initializable
             }
         });
         
+        hostnameField.setText("localhost");
+        portField.setText("44444");
         
     }    
     
@@ -110,7 +112,7 @@ public class LoginFXMLController implements Initializable
             Stage stage = app.getMainStage();
             javafx.scene.Scene scene = new Scene(window);
             stage.setMaxWidth(250);
-            stage.setMaxHeight(180);
+            stage.setMaxHeight(240);
             stage.setResizable(false);
             stage.setScene(scene);
             stage.centerOnScreen();
