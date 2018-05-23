@@ -21,7 +21,6 @@
                   GridPane.columnIndex = "1" GridPane.rowIndex = "0"/>
         <TextArea fx:id="messageBox" prefWidth = "400" prefHeight="80"
                     GridPane.columnIndex = "1" GridPane.rowIndex = "1"/>
-        <!--<Button text="Log out" GridPane.rowIndex = "2" GridPane.columnIndex = "0" onAction="#logout" />-->
         <HBox GridPane.columnIndex = "1" GridPane.rowIndex = "2" alignment="bottom_right" spacing = "10">
             <Button text="Send file" onAction="#sendFilePressed"/>    
             <Button text="Send" onAction="#sendPressed" />

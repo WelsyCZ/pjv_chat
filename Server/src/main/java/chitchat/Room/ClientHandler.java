@@ -79,7 +79,7 @@ public class ClientHandler extends Thread
                         roomServer.broadcastMessage(receivedMsg); //send the message to all clients
                     } catch (IOException e) {
                         logger.info("Error in transmission - probably due to a disconnect");
-                        System.out.println("users: "+roomServer.users.size()+ " outputs: "+roomServer.outputs.size());
+                        roomServer.logServerStatus();
                         break;
                     }
                 }

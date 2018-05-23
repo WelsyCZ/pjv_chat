@@ -76,7 +76,6 @@ public class ChatWorker implements Runnable {
         Message msg = new DisconnectMessage(username); //goodbye message
         output.writeObject(msg); //send the message
         input.close();
-        Platform.exit();
     }
     
     /**
@@ -106,9 +105,6 @@ public class ChatWorker implements Runnable {
                 //read a message from the input stream
                 //we're using the Message interface, polymorphism is cool
                 Message rcvMsg = (Message) input.readObject();
-                if(rcvMsg.getType() == MessageType.STATUS) {
-                    System.out.println(input.available());
-                }
                 while(chatController == null) continue; // wait for the loadup
                 // special behavior for file messages, sadly not implemented
                 if(rcvMsg.getType() == MessageType.FILE){

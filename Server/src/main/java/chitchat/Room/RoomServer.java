@@ -63,6 +63,7 @@ public class RoomServer
             users.remove(msg.getUsername());
             outputs.remove(msg.getUsername());
             logger.info(msg.getUsername()+ " has disconnected.");
+            logServerStatus();
             sendStatusMessage(); //update users of the disconnected client
         } else if(msg.getType() == MessageType.FILE){
             logger.info("Sending file");
@@ -147,6 +148,11 @@ public class RoomServer
         }
     }
 
+    void logServerStatus(){
+        String line = "users: "+users.size()+ " outputs: "+outputs.size();
+        logger.info(line);
+    }
+    
     private void runServer()
     {
         int clientsConnected = 0;

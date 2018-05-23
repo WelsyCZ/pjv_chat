@@ -78,6 +78,10 @@ public class ChatViewController implements Initializable {
                 msg = new StatusMessage(chatWorker.getUsername(), Status.AWAY);
             } else if(msgText.equals("/back") || msgText.equals("/BACK")) {
                 msg = new StatusMessage(chatWorker.getUsername(), Status.ONLINE);
+            } else if(msgText.equals("/help") || msgText.equals("/HELP")){
+                displayHelpMessage();
+                messageBox.clear();
+                return;
             } else {
                 msg = new TextMessage(msgText, usname);
             }
@@ -117,6 +121,14 @@ public class ChatViewController implements Initializable {
         }
     }
     
+    void displayHelpMessage(){
+        String help = "Help message - avaible commands:\n"
+                    + "/afk or /AFK - sets your status to AWAY\n"
+                    + "/back or /BACK - sets your status to ONLINE\n"
+                    + "/help or /HELP - displays this message\n";
+        messagesArea.appendText(help);
+    }
+    
     /**
      * Initializes the controller class.
      * called after all elements from the .fxml file have been properly loaded
@@ -127,6 +139,7 @@ public class ChatViewController implements Initializable {
         messagesArea.setFocusTraversable(false); // dont focus with tab
         messagesArea.setWrapText(true);
         messageBox.setWrapText(true);
+        messageBox.setPromptText("/help");
         onlineArea.setEditable(false);
         onlineArea.setFocusTraversable(false);
         messageBox.addEventFilter(KeyEvent.KEY_PRESSED, ke -> {
@@ -168,11 +181,13 @@ public class ChatViewController implements Initializable {
         }
     }
     // to return to the login screen
-    private void logout(ActionEvent e){
+    @FXML private void logout(ActionEvent e){
         try{
-            chatWorker.kill(); //stop the worker thread
+             
             //show the login screen, false flag indicates no error
             chatWorker.loginController.logoutScene(false); 
+            //stop the worker thread
+            chatWorker.kill();
         } catch (Exception ex) {
             logger.warning("error");
         }
