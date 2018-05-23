@@ -2,6 +2,7 @@ package chitchat.Room;
 
 import chitchat.Message.Message;
 import chitchat.Message.MessageType;
+import chitchat.Message.StatusUpdateMessage;
 import chitchat.User.Status;
 import chitchat.User.User;
 
@@ -23,9 +24,9 @@ public class RoomServer
     private boolean running = true;
     private ServerSocket serverSocket;
     private Thread[] clientThreads;
-    private HashMap<String, User> users;
+    HashMap<String, User> users;
     //private ArrayList<ObjectOutputStream> outputs;
-    private HashMap<String, ObjectOutputStream> outputs;
+    HashMap<String, ObjectOutputStream> outputs;
 
     private static Logger logger = Logger.getLogger(RoomServer.class.getName());
 
@@ -51,10 +52,14 @@ public class RoomServer
         if(msg.getType() == MessageType.DISCONNECT){
             users.remove(msg.getUsername());
             outputs.remove(msg.getUsername());
+            logger.info(msg.getUsername()+ " has disconnected.");
         } else{
             logger.info("Attempting to broadcast msg: "+msg.getContent());
             for(final ObjectOutputStream output : outputs.values()) {
+                output.flush();
+                System.out.println("broadcast size: "+((StatusUpdateMessage) msg).getUsers().values().size());
                 output.writeObject(msg);
+                
             }
         }
     }
@@ -78,7 +83,14 @@ public class RoomServer
     }
     
     public void sendStatusMessage(){
-        //Message msg = new
+        try{
+            Message msg = new StatusUpdateMessage(users);
+            //System.out.println("sendStatusMessage - size: "+((StatusUpdateMessage)msg).getUsers().values().size());
+            broadcastMessage(msg);
+        } catch(IOException e) {
+           logger.warning("failed to send status message");
+           e.printStackTrace();
+        }
     }
 
     private void runServer()

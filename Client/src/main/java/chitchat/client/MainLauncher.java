@@ -65,6 +65,9 @@ public class MainLauncher extends Application {
         launch(args);
     }
     
+    public Stage getMainStage(){
+        return mainStage;
+    }
     
     private Parent makeContent(){
         goToLogin();

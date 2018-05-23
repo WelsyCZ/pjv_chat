@@ -52,7 +52,6 @@ public class ClientHandler extends Thread
             roomServer.addOutput(username, output);
             output.writeObject(conf);
             if(conf.getUsernameAvailable()) {
-                roomServer.sendStatusMessage();
                 Message receivedMsg;
                 while (roomServer.isUp() && clientSocket.isConnected())
                 {
@@ -62,6 +61,7 @@ public class ClientHandler extends Thread
                         roomServer.broadcastMessage(receivedMsg);
                     } catch (IOException e) {
                         logger.info("Error in transmission - probably due to a disconnect");
+                        System.out.println("users: "+roomServer.users.size()+ " outputs: "+roomServer.outputs.size());
                         break;
                     }
                 }

@@ -79,10 +79,14 @@ public class ChatWorker implements Runnable {
     
         try{
             connect();
-            Message rcvMsg;
+            
             logger.log(Level.INFO, "Socket in and ready");
             while(noKill && socket.isConnected()) {
+                Message rcvMsg = null;
                 rcvMsg = (Message) input.readObject();
+                if(rcvMsg == null) System.out.println("rcv was null");
+                if(chatController == null) System.out.println("chatController null");
+                while(chatController == null) continue;
                 chatController.addToChat(rcvMsg);
             }
         } catch (SocketTimeoutException se) {

@@ -21,6 +21,7 @@ public class StatusUpdateMessage implements Message, Serializable {
     
     public StatusUpdateMessage(HashMap<String, User> users) {
         this.users = users;
+        this.type = MessageType.STATUS;
     }
 
     public MessageType getType() {

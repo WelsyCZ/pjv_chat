@@ -5,39 +5,32 @@
  */
 package chitchat.Message;
 
-import chitchat.User.User;
+import java.io.File;
 import java.io.Serializable;
-import java.util.HashMap;
 
 /**
  *
  * @author milan
  */
-public class StatusUpdateMessage implements Message, Serializable {
+public class FileMessage implements Message, Serializable {
 
-    private String username;
     private MessageType type;
-    private final HashMap<String, User> users;
+    private String username;
+    private File file;
     
-    public StatusUpdateMessage(HashMap<String, User> users) {
-        this.users = users;
-        this.type = MessageType.STATUS;
-    }
-
+    @Override
     public MessageType getType() {
         return type;
     }
 
+    @Override
     public String getUsername() {
         return username;
     }
 
+    @Override
     public String getContent() {
-        return "StatusUpdate";
-    }
-    
-    public HashMap<String, User> getUsers(){
-        return users;
+        return file.getName();
     }
     
 }
